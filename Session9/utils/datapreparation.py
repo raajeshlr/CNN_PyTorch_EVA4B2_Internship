@@ -1,20 +1,50 @@
+import numpy as np
 import torch
 import torchvision
 import torchvision.transforms as transforms
+from albumentations import Compose, RandomCrop, Normalize, HorizontalFlip, Resize, ToFloat, Rotate, Cutout
+from albumentations.pytorch import ToTensor
 
 
-def load():
+
+class album_Compose:
+    def __init__(self, train=True):
+        if train:
+            self.albumentations_transform = Compose([
+                                                     Rotate(limit=20, p=0.5),
+                                                     HorizontalFlip(),
+                                                     Cutout(num_holes=3, max_h_size=8, max_w_size=8, p=0.5),
+                                                     Normalize(mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784],),
+                                                     ToTensor()
+                                                     ])
+        else:
+            self.albumentations_transform = Compose([
+                                                     Normalize(mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784],),
+                                                     ToTensor()
+                                                     ])
+
+    def __call__(self, img):
+        img = np.array(img)
+        img = self.albumentations_transform(image=img)['image']
+        return img
+       
+
+def load(albumentations=True):
 	#Define the transformations for both Test & Train, we may use Data Augmentation, hence better to keep 2 functions for test & train
 
-	# Transformation for Training
-	train_transform = transforms.Compose(
-    	[transforms.ToTensor(),
-     	transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
+	if albumentations:
+		train_transform = album_Compose(train=True)
+		test_transform = album_Compose(train=False)
+	else:
+		# Transformation for Training
+		train_transform = transforms.Compose(
+    		[transforms.ToTensor(),
+     		transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
-	# Transformation for Test
-	test_transform = transforms.Compose(
-    	[transforms.ToTensor(),
-     	transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
+		# Transformation for Test
+		test_transform = transforms.Compose(
+    		[transforms.ToTensor(),
+     		transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
 	#Get the Train and Test Set
 	trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
