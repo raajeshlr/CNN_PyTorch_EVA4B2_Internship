@@ -42,6 +42,7 @@ def train_model(model, device, train_loader, optimizer, criterion, epoch):
 
     pbar.set_description(desc= f'Loss={loss.item()} Batch_id={batch_idx} Accuracy={100*correct/processed:0.2f}')
     train_acc.append(100*correct/processed)
+  return train_acc,train_losses
 
 
 def test_model(model, device, criterion, test_loader, is_last_epoch):
@@ -88,4 +89,4 @@ def test_model(model, device, criterion, test_loader, is_last_epoch):
     
     test_acc.append(100. * correct / len(test_loader.dataset))
 
-    return misclassified_imgs, correct_imgs
+    return test_acc,test_losses, misclassified_imgs, correct_imgs
