@@ -1,0 +1,6 @@
+ffmpeg -i video.mp4 -vf fps=3 out%d.png
+
+ffmpeg -r 60 -f image2 -s 1920x1080 -i pic%04d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p test.mp4
+
+for images to video
+filenames should be in out001 out002 .. out011 out012... out111
